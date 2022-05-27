@@ -1,0 +1,96 @@
+﻿@model IEnumerable<MvcAjaxTest002.OUVRAGE>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<form id="frm_find">
+    @*@Html.DropDownList("cmb_rub", null, htmlAttributes: new { @class = "form-select" })*@
+
+    <select class="form-select" id="cls" name="cls" aria-label="Default select example">
+        <option value="">Tout les classifications</option>
+        @foreach (CLASSIFICATION o in new librairieEntities().CLASSIFICATIONs)
+        {
+            <option @(o.NUMRUB.ToString() == ViewBag.selected ? "selected" : "") value="@o.NUMRUB">@o.LIBRUB</option>
+        }
+    </select>
+    <input type="text" id="find" name="find" value="@ViewBag.name" />
+    <input type="submit" id="sub" />
+</form>
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.NOMOUVR)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ANNEEPARU)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CLASSIFICATION.LIBRUB)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EDITEUR.ADRED)
+        </th>
+        <th></th>
+    </tr>
+    <tbody id="tbody">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NOMOUVR)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ANNEEPARU)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CLASSIFICATION.LIBRUB)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EDITEUR.ADRED)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.NUMOUVR }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.NUMOUVR }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.NUMOUVR })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section scripts
+{
+    <script>
+        $(document).ready(() => {
+            $("#frm_find").submit((e) => {
+                e.preventDefault();
+                let data = { "selected": $("#cls option:selected").val(), "find": $("#find").val() };
+                $.ajax({
+                    type: 'POST',
+                    url: '/OUVRAGEs/Index',
+                    data,
+                    success: result => {
+                        let lst = result.map(item =>
+                        {
+                            return `<tr><td>${item.NOMOUVR}</td><td>${item.ANNEEPARU}</td><td>${item.LIBRUB}</td><td>${item.ADRED}</td>
+                                    <td>
+                                        <a href="https://localhost:44368/OUVRAGEs/Edit/${item.NUMOUVR}">Edit</a>
+                                        <a href="https://localhost:44368/OUVRAGEs/Details/${item.NUMOUVR}">Details</a>
+                                        <a href="https://localhost:44368/OUVRAGEs/Delete/${item.NUMOUVR}">Delete</a>
+                                    </td>
+                                </tr>`
+                        })
+                        lst = lst.join('');
+                        $("#tbody").html(lst);
+                    }
+                })
+            })
+        })
+    </script>
+}
